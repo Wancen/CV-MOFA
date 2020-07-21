@@ -7,8 +7,6 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-reticulate::use_python("C:/Users/wancen/Anaconda3/envs/tensorflow_gpu/python.exe", required = T)
-setwd("C:/Users/wancen/OneDrive - University of North Carolina at Chapel Hill/Lab/GRA/multi-omics")
 library(data.table)
 library(purrr)
 # install.packages('Seurat')
@@ -29,7 +27,7 @@ Name the views for convenience
 views<-c("RNA expression","Enhancer accessibility", "Promoter accessibility","Enhancer methylation", "Promoter methylation" )
 views_nick<-c("RNA","enh_atac","pro_atac","enh_methy","pro_methy")
 nfactor<-5
-load("C:/Users/wancen/OneDrive - University of North Carolina at Chapel Hill/Lab/GRA/multi-omics/scnmt/mofacv.RData")
+load("mofacv.RData")
 ```
 
 Below is the code used for running the cross-validation, which takes approximately 2 hours. This code chunk is unevaluated, and instead we load the saved objects in the previous code chunk.
@@ -80,7 +78,7 @@ MOFAmodel_train <- prepare_mofa(
   model_options = model_opts,
   training_options = train_opts
 )
-MOFAmodel_train <- run_mofa(MOFAmodel_train,outfile = sprintf("C:/Users/wancen/OneDrive - University of North Carolina at Chapel Hill/Lab/GRA/multi-omics/model_%s.hdf5",i))
+MOFAmodel_train <- run_mofa(MOFAmodel_train,outfile = sprintf("model_%s.hdf5",i))
 }
 ## Construct contribution of each view from cv model #######################
 cvContribution_RNA_Mat=list()
@@ -89,7 +87,7 @@ cvContribution_pro_atac_Mat=list()
 cvContribution_enh_methy_Mat=list()
 cvContribution_pro_methy_Mat=list()
 for (i in 1:4) {
-MOFAmodel_train<-load_model(sprintf("C:/Users/wancen/OneDrive - University of North Carolina at Chapel Hill/Lab/GRA/multi-omics/model_%s.hdf5",i))
+MOFAmodel_train<-load_model(sprintf("model_%s.hdf5",i))
 a=which(foldMem!=i)
 weight_RNA_train<-(get_weights(MOFAmodel_train,views = "RNA expression"))$"RNA expression"
 weight_enh_atac_train<-(get_weights(MOFAmodel_train,views = "Enhancer accessibility"))$"Enhancer accessibility"
@@ -128,8 +126,8 @@ MOFAmodel <- prepare_mofa(
   model_options = model_opts,
   training_options = train_opts
 )
-MOFAmodel <- run_mofa(MOFAmodel,outfile = "C:/Users/wancen/OneDrive - University of North Carolina at Chapel Hill/Lab/GRA/multi-omics/model_full.hdf5")
-# MOFAmodel<-load_model("C:/Users/wancen/OneDrive - University of North Carolina at Chapel Hill/Lab/GRA/multi-omics/model_full.hdf5")
+MOFAmodel <- run_mofa(MOFAmodel,outfile = "model_full.hdf5")
+# MOFAmodel<-load_model("model_full.hdf5")
 weight_full<-list()
 fullContribution_featMean<-list()
 for(p in views){
